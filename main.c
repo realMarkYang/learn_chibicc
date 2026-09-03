@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <stdbool.h>
 
 /*
   .globl main
@@ -9,8 +12,30 @@ main:
   sub $4, %rax
   ret
 */
+typedef enum{
+    TK_PUNCT,   //标点符号
+    TK_NUM,     //数字
+    TK_EOF      //结束
+} TokenKind;
 
+typedef struct Token
+{
+    TokenKind kind;
+    Token *next;
+    int val;
+    char *loc;
+    int len;
+} Token;
 
+static bool equal(Token *tok, char *op)
+{
+    return memcmp(tok->loc, op, tok->len) == 0 && op[tok->len] == '\0';
+}
+
+static void error(char *fmt,...)
+{
+    va_list ap;
+}
 
 int main(int argc, char **argv)
 {
