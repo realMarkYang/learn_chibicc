@@ -29,6 +29,9 @@ struct Token
     int len;
 };
 
+
+static char *current_input;
+
 static bool equal(Token *tok, char *op)
 {
     return memcmp(tok->loc, op, tok->len) == 0 && op[tok->len] == '\0';
@@ -43,18 +46,46 @@ static void error(char *fmt, ...)
     exit(1); // 错误退出
 }
 
+
+//能指出错误在哪里的error
+static void verror_at(char *loc, char *fmt, va_list ap)
+{
+    int pos = loc - current_input;
+    fprintf(stderr, "%s\n", current_input);
+    fprintf(stderr, "%*s", pos, ""); // print pos spaces.
+    fprintf(stderr,"^ ");
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    exit(1);
+}
+
+static void error_at(char *loc, char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    verror_at(loc, fmt, ap);
+}
+
+static void error_tok(Token *tok, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  verror_at(tok->loc, fmt, ap);
+}
+
+
+
 // 确保跳过的就是s
 static Token *skip(Token *tok, char *s)
 {
     if (!equal(tok, s))
-        error("except '%s'", s);
+        error_tok(tok,"except '%s'", s);
     return tok->next;
 }
 
 static int get_number(Token *tok)
 {
     if (tok->kind != TK_NUM)
-        error("excepted a number");
+        error_tok(tok,"excepted a number");
     return tok->val;
 }
 
@@ -68,10 +99,11 @@ static Token *new_token(TokenKind kind, char *start, char *end)
 }
 
 // file start *p
-static Token *tokenize(char *p)
+static Token *tokenize()
 {
     Token head = {};
     Token *cur = &head;
+    char *p = current_input; 
 
     while (*p)
     {
@@ -99,7 +131,7 @@ static Token *tokenize(char *p)
             continue;
         }
 
-        error("invalid token");
+        error_at(p,"invalid token\n");
     }
 
     cur = cur->next = new_token(TK_EOF, p, p);
@@ -111,6 +143,8 @@ int main(int argc, char **argv)
     if (argc != 2)
         error("%s: invalid number of arguments\n", argv[0]);
 
+    
+    current_input = argv[1];
     // parse token
     Token *tok = tokenize(argv[1]);
 
