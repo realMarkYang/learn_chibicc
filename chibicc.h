@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -6,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct Node Node;
 //
 // tokenize.c
 //
@@ -36,10 +38,7 @@ bool equal(Token *tok, char *op);
 Token *skip(Token *tok, char *op);
 Token *tokenize(char *input);
 
-//
-// parse.c
-//
-
+//AST Node
 typedef enum
 {
     ND_ADD,       // +
@@ -58,7 +57,6 @@ typedef enum
 } NodeKind;
 
 // AST node type
-typedef struct Node Node;
 struct Node
 {
     NodeKind kind; // Node kind
