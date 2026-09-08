@@ -1,5 +1,15 @@
 #include "chibicc.h"
 
+static Node *expr(Token **rest, Token *tok);
+static Node *expr_stmt(Token **rest, Token *tok);
+static Node *assign(Token **rest, Token *tok);
+static Node *equality(Token **rest, Token *tok);
+static Node *relational(Token **rest, Token *tok);
+static Node *add(Token **rest, Token *tok);
+static Node *mul(Token **rest, Token *tok);
+static Node *unary(Token **rest, Token *tok);
+static Node *primary(Token **rest, Token *tok);
+
 static Node *new_node(NodeKind kind)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -29,19 +39,29 @@ static Node *new_num(int val)
     return node;
 }
 
-static Node *expr(Token **rest, Token *tok);
-static Node *expr_stmt(Token **rest, Token *tok);
-static Node *equality(Token **rest, Token *tok);
-static Node *relational(Token **rest, Token *tok);
-static Node *add(Token **rest, Token *tok);
-static Node *mul(Token **rest, Token *tok);
-static Node *unary(Token **rest, Token *tok);
-static Node *primary(Token **rest, Token *tok);
+static Node *new_var_node(char name)
+{
+    Node *node = new_node(ND_VAR);
+    node->name = name;
+    return node;
+}
 
 // expr = equality
 static Node *expr(Token **rest, Token *tok)
 {
-    return equality(rest, tok);
+    return assign(rest, tok);
+}
+
+// assign = equality ("=" assign)?
+static Node *assign(Token **rest, Token *tok)
+{
+    Node *node = equality(&tok, tok);
+    if (equal(tok, "="))
+    {
+        node = new_binary(ND_ASSIGN, node, assign(&tok, tok->next));
+    }
+    *rest = tok;
+    return node;
 }
 
 // equality = relational ("==" relational | "!=" relational)*
@@ -159,7 +179,7 @@ static Node *unary(Token **rest, Token *tok)
     return primary(rest, tok);
 }
 
-// primary = "(" expr ")" | num
+// primary = "(" expr ")" | ident | num
 static Node *primary(Token **rest, Token *tok)
 {
     if (equal(tok, "("))
@@ -168,6 +188,14 @@ static Node *primary(Token **rest, Token *tok)
         *rest = skip(tok, ")");
         return node;
     }
+
+    if(tok->kind == TK_IDENT)
+    {
+        Node *node = new_var_node(*tok->loc);
+        *rest = tok->next;
+        return node;
+    }
+
 
     if (tok->kind == TK_NUM)
     {
