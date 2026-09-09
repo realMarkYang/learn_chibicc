@@ -38,6 +38,26 @@ bool equal(Token *tok, char *op);
 Token *skip(Token *tok, char *op);
 Token *tokenize(char *input);
 
+typedef struct Obj Obj;
+
+struct Obj
+{
+    Obj *next;
+    char *name;
+    int offset; //offset from rbp
+};
+
+// Function
+typedef struct Function Function;
+struct Function
+{
+    Node *body;
+    Obj *locals;
+    int stack_size;
+};
+
+
+
 //AST Node
 typedef enum
 {
@@ -63,14 +83,14 @@ struct Node
     Node *next;    //Next Node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    char name;     // Used if kind == ND_VAR
+    Obj *var;     // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };
 
-Node *parse(Token *tok);
+Function *parse(Token *tok);
 
 //
 // codegen.c
 //
 
-void codegen(Node *node);
+void codegen(Function *prog);
