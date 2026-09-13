@@ -238,6 +238,8 @@ static Node *primary(Token **rest, Token *tok)
 }
 
 // stmt = "return" expr ";"
+//      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | "{" compound-stmt
 //      | expr-stmt
 static Node *stmt(Token **rest, Token *tok)
 {
@@ -247,6 +249,22 @@ static Node *stmt(Token **rest, Token *tok)
         *rest = skip(tok, ";");
         return node;
     }
+
+    if(equal(tok,"if"))
+    {
+        Node *node = new_node(ND_IF);
+        tok = skip(tok->next, "(");
+        node->cond = expr(&tok, tok);
+        tok = skip(tok, ")");
+        node->then = stmt(&tok, tok);
+        if (equal(tok, "else"))
+        {
+            node->els = stmt(&tok, tok->next);
+        }
+        *rest = tok;
+        return node;
+    }
+
     if (equal(tok, "{"))
     {
         return compound_stmt(rest, tok->next);
