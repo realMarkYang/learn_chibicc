@@ -13,22 +13,18 @@ static Node *mul(Token **rest, Token *tok);
 static Node *unary(Token **rest, Token *tok);
 static Node *primary(Token **rest, Token *tok);
 
-
-//Find a local variable by name 
+// Find a local variable by name
 static Obj *find_var(Token *tok)
 {
-    for(Obj *var = locals;var;var = var->next)
+    for (Obj *var = locals; var; var = var->next)
     {
-        if(strlen(var->name)==tok->len && !strncmp(tok->loc,var->name,tok->len))
+        if (strlen(var->name) == tok->len && !strncmp(tok->loc, var->name, tok->len))
         {
             return var;
         }
     }
     return NULL;
 }
-
-
-
 
 static Node *new_node(NodeKind kind)
 {
@@ -66,16 +62,15 @@ static Node *new_var_node(Obj *var)
     return node;
 }
 
-//local variable
+// local variable
 static Obj *new_lvar(char *name)
 {
     Obj *var = calloc(1, sizeof(Obj));
-    var->name = name;   //head insert
+    var->name = name; // head insert
     var->next = locals;
     locals = var;
     return var;
 }
-
 
 // expr = equality
 static Node *expr(Token **rest, Token *tok)
@@ -220,17 +215,16 @@ static Node *primary(Token **rest, Token *tok)
         return node;
     }
 
-    if(tok->kind == TK_IDENT)
+    if (tok->kind == TK_IDENT)
     {
         Obj *var = find_var(tok);
-        if(!var)
+        if (!var)
         {
             var = new_lvar(strndup(tok->loc, tok->len));
         }
         *rest = tok->next;
         return new_var_node(var);
     }
-
 
     if (tok->kind == TK_NUM)
     {
@@ -242,17 +236,25 @@ static Node *primary(Token **rest, Token *tok)
     error_tok(tok, "expected an expression");
 }
 
-// stmt = expr-stmt
+// stmt = "return" expr ";"
+//      | expr-stmt
 static Node *stmt(Token **rest, Token *tok)
 {
+    if (equal(tok, "return"))
+    {
+        Node *node = new_unary(ND_RETURN, expr(&tok, tok->next));
+        *rest = skip(tok, ";");
+        return node;
+    }
+
     return expr_stmt(rest, tok);
 }
 
-//expr-stmt=expr ";"
+// expr-stmt=expr ";"
 static Node *expr_stmt(Token **rest, Token *tok)
 {
-    Node *node = new_unary(ND_EXPR_STMT,expr(&tok, tok));
-    *rest = skip(tok,";");
+    Node *node = new_unary(ND_EXPR_STMT, expr(&tok, tok));
+    *rest = skip(tok, ";");
     return node;
 }
 

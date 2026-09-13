@@ -14,10 +14,11 @@ typedef struct Node Node;
 
 typedef enum
 {
-    TK_IDENT, // Identifiers
-    TK_PUNCT, // Punctuators
-    TK_NUM,   // Numeric literals
-    TK_EOF,   // End-of-file markers
+    TK_IDENT,   // Identifiers 变量标识符
+    TK_PUNCT,   // Punctuators
+    TK_KEYWORD, // Keywords
+    TK_NUM,     // Numeric literals
+    TK_EOF,     // End-of-file markers
 } TokenKind;
 
 // Token type
@@ -44,7 +45,7 @@ struct Obj
 {
     Obj *next;
     char *name;
-    int offset; //offset from rbp
+    int offset; // offset from rbp
 };
 
 // Function
@@ -56,21 +57,20 @@ struct Function
     int stack_size;
 };
 
-
-
-//AST Node
+// AST Node
 typedef enum
 {
-    ND_ADD,       // +
-    ND_SUB,       // -
-    ND_MUL,       // *
-    ND_DIV,       // /
-    ND_NEG,       // unary -
-    ND_EQ,        // ==
-    ND_NE,        // !=
-    ND_LT,        // <
-    ND_LE,        // <=
-    ND_ASSIGN,    // =
+    ND_ADD,    // +
+    ND_SUB,    // -
+    ND_MUL,    // *
+    ND_DIV,    // /
+    ND_NEG,    // unary -
+    ND_EQ,     // ==
+    ND_NE,     // !=
+    ND_LT,     // <
+    ND_LE,     // <=
+    ND_ASSIGN, // =
+    ND_RETURN, // "return"
     ND_EXPR_STMT, // Expression statement
     ND_VAR,       // Variable
     ND_NUM,       // Integer
@@ -80,10 +80,10 @@ typedef enum
 struct Node
 {
     NodeKind kind; // Node kind
-    Node *next;    //Next Node
+    Node *next;    // Next Node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    Obj *var;     // Used if kind == ND_VAR
+    Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };
 

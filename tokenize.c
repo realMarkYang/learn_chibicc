@@ -91,6 +91,17 @@ static Token *new_token(TokenKind kind, char *start, char *end)
     return tok;
 }
 
+static void convert_keywords(Token *tok)
+{
+    for (Token *t = tok; t->kind != TK_EOF; t = t->next)
+    {
+        if (equal(t, "return"))
+        {
+            t->kind = TK_KEYWORD;
+        }
+    }
+}
+
 // file start *p
 Token *tokenize(char *p)
 {
@@ -117,7 +128,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        //Identifier
+        // Parse Identifier or keywords
         if (is_ident1(*p))
         {
             char *start = p;
@@ -142,5 +153,7 @@ Token *tokenize(char *p)
     }
 
     cur = cur->next = new_token(TK_EOF, p, p);
+    convert_keywords(head.next);
+
     return head.next;
 }

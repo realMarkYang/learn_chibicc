@@ -22,10 +22,10 @@ static int align_to(int n, int align)
     return (n + align - 1) / align * align;
 }
 
-//generate effective address for local variable
+// generate effective address for local variable
 static void gen_addr(Node *node)
 {
-    if(node->kind == ND_VAR)
+    if (node->kind == ND_VAR)
     {
         printf("  lea %d(%%rbp), %%rax\n", node->var->offset);
         return;
@@ -33,7 +33,6 @@ static void gen_addr(Node *node)
 
     error("not an lvalue\n");
 }
-
 
 // 后序遍历
 static void gen_expr(Node *node)
@@ -103,8 +102,13 @@ static void gen_expr(Node *node)
 
 static void gen_stmt(Node *node)
 {
-    if (node->kind == ND_EXPR_STMT)
+    switch (node->kind)
     {
+    case ND_RETURN:
+        gen_expr(node->lhs);
+        printf("  jmp .L.return\n");
+        return;
+    case ND_EXPR_STMT:
         gen_expr(node->lhs);
         return;
     }
@@ -128,7 +132,7 @@ void codegen(Function *prog)
     assign_lvar_offsets(prog);
     printf("  .globl main\n");
     printf("main:\n");
-    //Preallocate some memory for stack
+    // Preallocate some memory for stack
     printf("  push %%rbp\n");
     printf("  mov %%rsp, %%rbp\n");
     printf("  sub $%d, %%rsp\n", prog->stack_size);
@@ -138,8 +142,9 @@ void codegen(Function *prog)
         gen_stmt(n);
         assert(depth == 0);
     }
-    
-    //free stack memory
+
+    // free stack memory
+    printf(".L.return:\n");
     printf("  mov %%rbp, %%rsp\n");
     printf("  pop %%rbp\n");
 
