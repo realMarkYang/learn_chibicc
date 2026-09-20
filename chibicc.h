@@ -57,21 +57,23 @@ struct Function
     int stack_size;
 };
 
-// AST Node
+// AST node
 typedef enum
 {
-    ND_ADD,    // +
-    ND_SUB,    // -
-    ND_MUL,    // *
-    ND_DIV,    // /
-    ND_NEG,    // unary -
-    ND_EQ,     // ==
-    ND_NE,     // !=
-    ND_LT,     // <
-    ND_LE,     // <=
-    ND_ASSIGN, // =
-    ND_RETURN, // "return"
-    ND_IF,     // "if"
+    ND_ADD,       // +
+    ND_SUB,       // -
+    ND_MUL,       // *
+    ND_DIV,       // /
+    ND_NEG,       // unary -
+    ND_EQ,        // ==
+    ND_NE,        // !=
+    ND_LT,        // <
+    ND_LE,        // <=
+    ND_ASSIGN,    // =
+    ND_ADDR,      // unary &
+    ND_DEREF,     // unary *
+    ND_RETURN,    // "return"
+    ND_IF,        // "if"
     ND_FOR,       // "for" or "while"
     ND_BLOCK,     // { ... }
     ND_EXPR_STMT, // Expression statement
