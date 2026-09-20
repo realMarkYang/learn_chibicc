@@ -37,7 +37,7 @@ static void gen_addr(Node *node)
         return;
     }
 
-    error("not an lvalue\n");
+    error_tok(node->tok,"not an lvalue\n");
 }
 
 // 后序遍历
@@ -103,7 +103,7 @@ static void gen_expr(Node *node)
         printf("  movzb %%al, %%rax\n");
         return;
     }
-    error("invalid expression");
+    error_tok(node->tok,"invalid expression");
 }
 
 static void gen_stmt(Node *node)
@@ -163,7 +163,7 @@ static void gen_stmt(Node *node)
         gen_expr(node->lhs);
         return;
     }
-    error("invalid statement\n");
+    error_tok(node->tok,"invalid statement\n");
 }
 
 // Assign offsets to local variables
